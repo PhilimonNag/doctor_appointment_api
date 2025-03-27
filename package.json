@@ -1,0 +1,25 @@
+{
+  "name": "doctor_appointment_api",
+  "version": "1.0.0",
+  "description": "Doctor Appointment Slot booking API.",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PhilimonNag/doctor_appointment_api.git"
+  },
+  "keywords": [
+    "nodejs",
+    "mongodb",
+    "express",
+    "express-validator"
+  ],
+  "author": "Philimon Nag <philimonnag@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PhilimonNag/doctor_appointment_api/issues"
+  },
+  "homepage": "https://github.com/PhilimonNag/doctor_appointment_api#readme"
+}
