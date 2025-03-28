@@ -37,9 +37,9 @@ Ensure you have the following installed:
    **Example `.env.example` file:**
 
    ```env
+   NODE_ENV=development
    PORT=3000
-   MONGO_URI=mongodb://localhost:27017/appointments
-   JWT_SECRET=your_secret_key
+   MONGO_URI=mongodb://localhost:27017/doctor_appointment_db
    ```
 
 4. **Run the application**
