@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const errorHandler = require("./middlewares/errorHandler.middleware");
+const routes = require("./routes/index");
 
 dotenv.config(); // Load environment variables
 
@@ -12,10 +13,11 @@ app.use(express.json()); // Parse JSON requests
 app.use(cors()); // Enable CORS
 app.use(express.urlencoded({ extended: true }));
 
-// Test route
+// Health check
 app.get("/", (req, res) => {
   res.send({ message: "API is running..." });
 });
+app.use("/api/v1", routes); // API routes
 
 app.use((req, res, next) => {
   const error = new Error("Not Found");
