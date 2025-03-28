@@ -17,4 +17,7 @@ router.post(
   validate,
   slotController.createRecurringSlots
 );
+
+router.get("/:doctorId/bookings", doctorController.getBookedAppointments);
+router.get("/:doctorId/available_slots", doctorController.getAvailableSlots);
 module.exports = router;
