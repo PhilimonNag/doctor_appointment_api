@@ -63,10 +63,10 @@ Ensure you have the following installed:
 
 ```json
 {
-  "name": "Dr. John Doe",
-  "specialization": "Cardiology",
-  "email": "johndoe@example.com",
-  "mobile_number": "9876543210"
+  "username": "drjohn",
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "dr.john@example.com"
 }
 ```
 
@@ -77,16 +77,46 @@ Ensure you have the following installed:
   "success": true,
   "message": "Doctor created successfully",
   "data": {
-    "_id": "67e67307e132576a5039c518",
-    "name": "Dr. John Doe",
-    "specialization": "Cardiology",
-    "email": "johndoe@example.com",
-    "mobile_number": "9876543210"
+    "id": "67e66cbf2915e54656b2fc7a",
+    "username": "drjohn",
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "dr.john@example.com"
   }
 }
 ```
 
-### **2. Get Available Slots**
+### **2.Create Recurring Slots**
+
+**Endpoint:** `GET /api/v1/doctors/:doctorId/slots`
+
+**Request Body:**
+
+```json
+{
+  "start_time": "2025-04-01T10:00:00Z",
+  "end_time": "2025-04-01T12:00:00Z",
+  "slot_duration": 30,
+  "recurrence_type": "weekly",
+  "repeat_until": "2025-05-01T00:00:00Z",
+  "weekdays": ["MO", "WE", "FR"],
+  "one_time_date": "2025-04-15T10:00:00Z"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Slots created successfully",
+  "data": {
+    "recurrence_id": "67e66cbf2915e54656b2fc7a"
+  }
+}
+```
+
+### **3. Get Available Slots**
 
 **Endpoint:** `GET /api/v1/doctors/:doctorId/available_slots`
 
@@ -107,7 +137,7 @@ Ensure you have the following installed:
 }
 ```
 
-### **3. Get Booked Appointments**
+### **4. Get Booked Appointments**
 
 **Endpoint:** `GET /api/v1/doctors/:doctorId/bookings`
 
@@ -120,16 +150,29 @@ Ensure you have the following installed:
   "data": [
     {
       "_id": "67e64c817a6d7d5a5634d244",
-      "slot": { "start_time": "10:00", "end_time": "10:30" },
-      "patient": { "name": "Babu sona", "email": "babu@gmail.com" },
+      "slot": {
+        "_id": "67e63e48488b85e9c660bc1f",
+        "start_time": "10:00",
+        "end_time": "10:30"
+      },
+      "patient": {
+        "_id": "67e64c817a6d7d5a5634d242",
+        "first_name": "Babu",
+        "last_name": "Sona",
+        "email": "babu@gmail.com",
+        "mobile_number": "7751996767"
+      },
       "reason": "suffering from fever",
-      "booking_time": "2025-03-28T07:15:13.888Z"
+      "booking_time": "2025-03-28T07:15:13.888Z",
+      "createdAt": "2025-03-28T07:15:13.889Z",
+      "updatedAt": "2025-03-28T07:15:13.889Z",
+      "__v": 0
     }
   ]
 }
 ```
 
-### **4. Book a Slot**
+### **5. Book a Slot**
 
 **Endpoint:** `POST /api/v1/slots/:slotId/book`
 
@@ -155,8 +198,9 @@ Ensure you have the following installed:
     "booking_id": "67e67307e132576a5039c518",
     "booking_time": "2025-03-28T09:59:35.276Z",
     "patient": {
-      "name": "Babu sona",
-      "email": "babu@gmail.com"
+      "name": "Babu Sona",
+      "email": "babu@gmail.com",
+      "mobile_number": "7751996767"
     },
     "slot": {
       "start_time": "11:00",
