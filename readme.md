@@ -223,9 +223,9 @@ Ensure you have the following installed:
 
 ## Live API
 
-You can access the live API at:
-
-🔗 **[https://doctor-api.philimonnag.com](https://doctor-api.philimonnag.com)**
+- 🔗 **[API Documentation](https://doctor-api.philimonnag.com/api-docs)**
+- 🔗 **[Base API URL](https://doctor-api.philimonnag.com/)**
+- 🔗 **[Versioned API](https://doctor-api.philimonnag.com/api/v1)**
 
 ## License
 
