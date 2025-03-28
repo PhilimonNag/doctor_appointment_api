@@ -1,8 +1,10 @@
 const moment = require("moment");
 const RecurrenceRule = require("../models/recurrenceRule.model");
 const Slot = require("../models/slot.model");
+const Patient = require("../models/patient.model");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler.middleware");
 const responseHandler = require("../utils/responseHandler");
+const Booking = require("../models/booking.model");
 exports.createRecurringSlots = asyncErrorHandler(async (req, res) => {
   const doctorId = req.params.doctorId;
   const {
@@ -119,6 +121,66 @@ exports.createRecurringSlots = asyncErrorHandler(async (req, res) => {
     message: "Slots created successfully",
     data: {
       recurrence_id: newRecurrence._id,
+    },
+  });
+});
+
+exports.bookSlot = asyncErrorHandler(async (req, res) => {
+  const slotId = req.params.slotId;
+  const { first_name, last_name, reason, email, mobile_number } = req.body;
+
+  const availableSlot = await Slot.findOneAndUpdate(
+    { _id: slotId, status: "available" },
+    { status: "booked" },
+    { new: true }
+  );
+
+  if (!availableSlot) {
+    return responseHandler({
+      res,
+      success: false,
+      message: "Slot not available",
+      statusCode: 400,
+    });
+  }
+
+  let patient = await Patient.findOne({ email });
+
+  if (!patient) {
+    patient = await Patient.create({
+      first_name,
+      last_name,
+      email,
+      mobile_number,
+    });
+  }
+
+  const bookingTime = new Date();
+  const newBooking = await Booking.create({
+    reason,
+    patient: patient._id,
+    slot: availableSlot._id,
+    booking_time: bookingTime,
+  });
+
+  return responseHandler({
+    res,
+    success: true,
+    message: "Slot booked successfully",
+    data: {
+      booking_id: newBooking._id,
+      booking_time: bookingTime,
+      patient: {
+        name: `${patient.first_name} ${patient.last_name}`,
+        email: patient.email,
+        mobile_number: patient.mobile_number,
+      },
+      slot: {
+        start_time: availableSlot.start_time,
+        end_time: availableSlot.end_time,
+        date: availableSlot.date,
+        status: availableSlot.status,
+      },
     },
   });
 });

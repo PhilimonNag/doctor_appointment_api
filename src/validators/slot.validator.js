@@ -1,5 +1,6 @@
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 const moment = require("moment");
+const { bookSlot } = require("../controllers/slot.controller");
 
 const isValidISODate = (value) =>
   moment(value, moment.ISO_8601, true).isValid();
@@ -81,5 +82,46 @@ module.exports = {
     body("end_time").trim(),
     body("repeat_until").optional().trim(),
     body("one_time_date").optional().trim(),
+  ],
+  bookSlotValidator: [
+    param("slotId")
+      .exists()
+      .withMessage("slotId is required")
+      .isMongoId()
+      .withMessage("Invalid slot ID format"),
+
+    body("reason")
+      .exists()
+      .withMessage("Reason is required")
+      .isLength({ min: 5, max: 200 })
+      .withMessage("Reason must be between 5 and 200 characters")
+      .trim(),
+
+    body("first_name")
+      .exists()
+      .withMessage("First name is required")
+      .isLength({ min: 2, max: 50 })
+      .withMessage("First name must be between 2 and 50 characters")
+      .trim(),
+
+    body("last_name")
+      .exists()
+      .withMessage("Last name is required")
+      .isLength({ min: 2, max: 50 })
+      .withMessage("Last name must be between 2 and 50 characters")
+      .trim(),
+
+    body("email")
+      .exists()
+      .withMessage("Email is required")
+      .isEmail()
+      .withMessage("Invalid email format")
+      .normalizeEmail(),
+
+    body("mobile_number")
+      .exists()
+      .withMessage("Mobile number is required")
+      .isMobilePhone()
+      .withMessage("Invalid mobile number format"),
   ],
 };
