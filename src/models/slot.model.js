@@ -7,16 +7,16 @@ const recurrenceRuleSchema = new mongoose.Schema({
     required: true,
   },
   date: { type: Date, required: true },
-  start_time: { type: String, required: true },
-  end_time: { type: String, required: true },
-  slot_duration: { type: Number, enum: [15, 30], required: true },
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+  slotDuration: { type: Number, enum: [15, 30], required: true },
   status: {
     type: String,
     enum: ["available", "booked", "unavailable"],
     default: "available",
     required: true,
   },
-  recurrence_rule: {
+  recurrenceRule: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "RecurrenceRule",
     required: true,

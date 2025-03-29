@@ -25,23 +25,23 @@ const { bookSlotValidator } = require("../validators/slot.validator");
  *           schema:
  *             type: object
  *             required:
- *               - first_name
- *               - last_name
+ *               - firstName
+ *               - lastName
  *               - email
- *               - mobile_number
+ *               - mobileNumber
  *               - reason
  *             properties:
- *               first_name:
+ *               firstName:
  *                 type: string
- *                 example: "Babu"
- *               last_name:
+ *                 example: "PatientFirstName"
+ *               lastName:
  *                 type: string
- *                 example: "Sona"
+ *                 example: "PatientLastName"
  *               email:
  *                 type: string
  *                 format: email
- *                 example: "babu@gmail.com"
- *               mobile_number:
+ *                 example: "Patient@gmail.com"
+ *               mobileNumber:
  *                 type: string
  *                 example: "7751996767"
  *               reason:
@@ -66,10 +66,10 @@ const { bookSlotValidator } = require("../validators/slot.validator");
  *                 data:
  *                   type: object
  *                   properties:
- *                     booking_id:
+ *                     bookingId:
  *                       type: string
  *                       example: "67e67307e132576a5039c518"
- *                     booking_time:
+ *                     bookingTime:
  *                       type: string
  *                       format: date-time
  *                       example: "2025-03-28T09:59:35.276Z"
@@ -78,20 +78,20 @@ const { bookSlotValidator } = require("../validators/slot.validator");
  *                       properties:
  *                         name:
  *                           type: string
- *                           example: "Babu Sona"
+ *                           example: "PatientName"
  *                         email:
  *                           type: string
- *                           example: "babu@gmail.com"
- *                         mobile_number:
+ *                           example: "Patient@gmail.com"
+ *                         mobileNumber:
  *                           type: string
  *                           example: "7751996767"
  *                     slot:
  *                       type: object
  *                       properties:
- *                         start_time:
+ *                         startTime:
  *                           type: string
  *                           example: "11:00"
- *                         end_time:
+ *                         endTime:
  *                           type: string
  *                           example: "11:30"
  *                         date:
@@ -101,43 +101,6 @@ const { bookSlotValidator } = require("../validators/slot.validator");
  *                         status:
  *                           type: string
  *                           example: "booked"
- *       400:
- *         description: Validation error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Validation failed"
- *                 errors:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       field:
- *                         type: string
- *                         example: "email"
- *                       message:
- *                         type: string
- *                         example: "Invalid email format"
- *       404:
- *         description: Slot not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Slot not found"
  */
 
 router.post(

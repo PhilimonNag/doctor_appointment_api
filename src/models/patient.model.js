@@ -2,14 +2,14 @@ const mongoose = require("mongoose");
 
 const patientSchema = new mongoose.Schema(
   {
-    first_name: {
+    firstName: {
       type: String,
-      required: [true, "First name is required"],
+      required: [true, "FirstName is required"],
       trim: true,
     },
-    last_name: {
+    lastName: {
       type: String,
-      required: [true, "Last name is required"],
+      required: [true, "LastName is required"],
       trim: true,
     },
     email: {
@@ -23,7 +23,7 @@ const patientSchema = new mongoose.Schema(
         "Please enter a valid email address",
       ],
     },
-    mobile_number: {
+    mobileNumber: {
       type: String,
       required: [true, "Mobile number is required"],
       unique: true,

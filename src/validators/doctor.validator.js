@@ -2,18 +2,18 @@ const { body } = require("express-validator");
 
 module.exports = {
   doctorCreateValidator: [
-    body("username")
+    body("userName")
       .trim()
       .notEmpty()
-      .withMessage("username is required")
+      .withMessage("userName is required")
       .matches(/^[a-zA-Z0-9_]+$/)
       .withMessage(
         "Username can only contain letters, numbers, and underscores"
       ),
 
-    body("first_name").trim().notEmpty().withMessage("first_name is required"),
+    body("firstName").trim().notEmpty().withMessage("firstName is required"),
 
-    body("last_name").trim().notEmpty().withMessage("last_name is required"),
+    body("lastName").trim().notEmpty().withMessage("lastName is required"),
 
     body("email")
       .trim()

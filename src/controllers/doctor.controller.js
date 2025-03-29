@@ -4,14 +4,15 @@ const Slot = require("../models/slot.model");
 const Booking = require("../models/booking.model");
 const moment = require("moment");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler.middleware");
+const { Result } = require("express-validator");
 
 const createDoctor = asyncErrorHandler(async (req, res) => {
-  const { username, first_name, last_name, email } = req.body;
+  const { userName, firstName, lastName, email } = req.body;
 
   const doctor = await Doctor.create({
-    username,
-    first_name,
-    last_name,
+    userName,
+    firstName,
+    lastName,
     email,
   });
 
@@ -25,36 +26,51 @@ const createDoctor = asyncErrorHandler(async (req, res) => {
 
 const getBookedAppointments = asyncErrorHandler(async (req, res) => {
   const { doctorId } = req.params;
-  const { start_date, end_date } = req.query;
+  const { startDate, endDate } = req.query;
 
-  if (!start_date || !end_date) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Start and end dates are required" });
+  if (!startDate || !endDate) {
+    return responseHandler({
+      res,
+      success: false,
+      message: "startDate and endDate are required",
+      statusCode: 400,
+    });
   }
 
-  const startDate = new Date(start_date);
-  const endDate = new Date(end_date);
+  const mStartDate = new Date(startDate);
+  const mEndDate = new Date(endDate);
   const bookedAppointments = await Booking.find({
-    booking_time: { $gte: startDate, $lte: endDate },
+    bookingTime: { $gte: mStartDate, $lte: mEndDate },
   })
     .populate({
       path: "slot",
       match: { doctor: doctorId },
-      select: "start_time end_time",
+      select: "startTime endTime",
     })
-    .populate("patient", "first_name last_name email mobile_number")
+    .populate("patient", "firstName lastName email mobileNumber")
     .lean();
 
   const filteredAppointments = bookedAppointments.filter(
     (booking) => booking.slot !== null
   );
 
-  res.status(200).json({
-    success: true,
-    count: filteredAppointments.length,
-    data: filteredAppointments,
-  });
+  if (filteredAppointments.length > 0)
+    responseHandler({
+      res,
+      success: true,
+      message: "Booking Founds",
+      data: {
+        count: filteredAppointments.length,
+        result: filteredAppointments,
+      },
+    });
+  else
+    return responseHandler({
+      res,
+      success: false,
+      message: "No booking founds",
+      statusCode: 400,
+    });
 });
 
 const getAvailableSlots = asyncErrorHandler(async (req, res) => {
@@ -62,9 +78,12 @@ const getAvailableSlots = asyncErrorHandler(async (req, res) => {
   const { date } = req.query;
 
   if (!date) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Date is required" });
+    return responseHandler({
+      res,
+      message: "date is required",
+      success: false,
+      statusCode: 400,
+    });
   }
   const queryDate = moment(date).startOf("day").toDate();
   let exactDate = moment(queryDate).add(1, "day").toDate();
@@ -73,13 +92,25 @@ const getAvailableSlots = asyncErrorHandler(async (req, res) => {
     doctor: doctorId,
     date: exactDate,
     status: "available",
-  }).select("start_time end_time date");
+  }).select("startTime endTime date");
 
-  res.status(200).json({
-    success: true,
-    count: availableSlots.length,
-    data: availableSlots,
-  });
+  if (availableSlots.length > 0)
+    return responseHandler({
+      res,
+      success: true,
+      message: "Slots Available",
+      data: {
+        counts: availableSlots.length,
+        result: availableSlots,
+      },
+    });
+  else
+    return responseHandler({
+      res,
+      success: false,
+      statusCode: 400,
+      message: "Slots Not Found",
+    });
 });
 
 module.exports = { createDoctor, getBookedAppointments, getAvailableSlots };

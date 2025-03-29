@@ -6,16 +6,16 @@ const recurrenceRuleSchema = new mongoose.Schema({
     ref: "Doctor",
     required: true,
   },
-  start_time: { type: String, required: true },
-  end_time: { type: String, required: true },
-  slot_duration: { type: Number, enum: [15, 30], required: true },
-  recurrence_type: {
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+  slotDuration: { type: Number, enum: [15, 30], required: true },
+  recurrenceType: {
     type: String,
-    enum: ["daily", "weekly", "one-time"],
+    enum: ["daily", "weekly", "oneTime"],
     required: true,
   },
-  recurrence_rule: { type: String, required: false },
-  one_time_date: { type: Date, required: false },
+  recurrenceRule: { type: String, required: false },
+  oneTimeDate: { type: Date, required: false },
 });
 
 const RecurrenceRule = mongoose.model("RecurrenceRule", recurrenceRuleSchema);

@@ -5,49 +5,63 @@ const Patient = require("../models/patient.model");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler.middleware");
 const responseHandler = require("../utils/responseHandler");
 const Booking = require("../models/booking.model");
+
 exports.createRecurringSlots = asyncErrorHandler(async (req, res) => {
   const doctorId = req.params.doctorId;
   const {
-    start_time,
-    end_time,
-    slot_duration,
-    recurrence_type,
-    repeat_until,
-    weekdays,
-    one_time_date,
+    startTime,
+    endTime,
+    slotDuration,
+    recurrenceType,
+    repeatUntil,
+    weekDays,
+    oneTimeDate,
   } = req.body;
 
-  // Ensure valid timestamps
+  // Validate start and end time
   if (
-    !moment(start_time, moment.ISO_8601, true).isValid() ||
-    !moment(end_time, moment.ISO_8601, true).isValid()
+    !moment(startTime, moment.ISO_8601, true).isValid() ||
+    !moment(endTime, moment.ISO_8601, true).isValid()
   ) {
     return responseHandler({
       res,
       success: false,
-      message: "Invalid date format",
+      message: "Invalid date format for startTime or endTime",
       statusCode: 400,
     });
   }
 
-  // Convert to UTC and extract only HH:mm
-  const startTime = moment.utc(start_time).format("HH:mm");
-  const endTime = moment.utc(end_time).format("HH:mm");
+  if (
+    oneTimeDate &&
+    !moment.utc(oneTimeDate, moment.ISO_8601, true).isValid()
+  ) {
+    return responseHandler({
+      res,
+      success: false,
+      message: "Invalid oneTime date format",
+      statusCode: 400,
+    });
+  }
+
+  // Convert times to UTC and extract HH:mm format
+  const mStartTime = moment.utc(startTime).format("HH:mm");
+  const mEndTime = moment.utc(endTime).format("HH:mm");
 
   let recurrenceRule = null;
   let slots = [];
 
-  if (recurrence_type === "daily") {
+  // Define recurrence rule
+  if (recurrenceType === "daily") {
     recurrenceRule = `FREQ=DAILY;UNTIL=${moment
-      .utc(repeat_until)
+      .utc(repeatUntil)
       .format("YYYYMMDD")}T235959Z`;
-  } else if (recurrence_type === "weekly" && weekdays && weekdays.length) {
-    recurrenceRule = `FREQ=WEEKLY;BYDAY=${weekdays
+  } else if (recurrenceType === "weekly" && weekDays && weekDays.length) {
+    recurrenceRule = `FREQ=WEEKLY;BYDAY=${weekDays
       .join(",")
       .toUpperCase()};UNTIL=${moment
-      .utc(repeat_until)
+      .utc(repeatUntil)
       .format("YYYYMMDD")}T235959Z`;
-  } else if (recurrence_type === "one-time" && one_time_date) {
+  } else if (recurrenceType === "oneTime" && oneTimeDate) {
     recurrenceRule = null;
   } else {
     return responseHandler({
@@ -58,60 +72,67 @@ exports.createRecurringSlots = asyncErrorHandler(async (req, res) => {
     });
   }
 
+  // Create recurrence rule entry
   const newRecurrence = await RecurrenceRule.create({
     doctor: doctorId,
-    start_time: startTime,
-    end_time: endTime,
-    slot_duration,
-    recurrence_type,
-    recurrence_rule: recurrenceRule,
-    one_time_date: one_time_date ? moment.utc(one_time_date).toDate() : null,
+    startTime: mStartTime,
+    endTime: mEndTime,
+    slotDuration,
+    recurrenceType,
+    recurrenceRule: recurrenceRule,
+    oneTimeDate: oneTimeDate ? moment.utc(oneTimeDate).toDate() : null,
   });
 
+  // Determine start and end dates
   let currentDate =
-    recurrence_type === "one-time"
-      ? moment(one_time_date).startOf("day")
-      : moment(start_time).startOf("day");
+    recurrenceType === "oneTime"
+      ? moment.utc(oneTimeDate).startOf("day")
+      : moment.utc(startTime).startOf("day");
 
   let endDate =
-    recurrence_type === "one-time"
-      ? moment(one_time_date).startOf("day")
-      : moment(repeat_until).startOf("day");
-
+    recurrenceType === "oneTime"
+      ? moment.utc(oneTimeDate).startOf("day")
+      : moment.utc(repeatUntil).startOf("day");
   // console.log(currentDate, endDate);
   while (!currentDate.isAfter(endDate)) {
+    // For weekly recurrence, check if the day matches
     if (
-      recurrence_type === "weekly" &&
-      !weekdays.includes(currentDate.format("dd").toUpperCase())
+      recurrenceType === "weekly" &&
+      !weekDays.includes(currentDate.format("ddd").toUpperCase())
     ) {
       currentDate.add(1, "day");
       continue;
     }
 
-    let slotStart = moment(`${currentDate.format("YYYY-MM-DD")}T${startTime}`);
-    let slotEnd = moment(`${currentDate.format("YYYY-MM-DD")}T${endTime}`);
-    // console.log(`${slotStart} - ${slotEnd}`);
+    let slotStart = moment.utc(
+      `${currentDate.format("YYYY-MM-DD")}T${mStartTime}`,
+      moment.ISO_8601,
+      true
+    );
+    let slotEnd = moment.utc(
+      `${currentDate.format("YYYY-MM-DD")}T${mEndTime}`,
+      moment.ISO_8601,
+      true
+    );
+
     while (slotStart.isBefore(slotEnd)) {
-      let slotEndTime = moment(slotStart).add(slot_duration, "minutes");
+      let slotEndTime = moment(slotStart).add(slotDuration, "minutes");
       if (slotEndTime.isAfter(slotEnd)) break;
 
       slots.push({
         doctor: doctorId,
         date: currentDate.toDate(),
-        start_time: slotStart.format("HH:mm"),
-        end_time: slotEndTime.format("HH:mm"),
-        // start_time: slotStart.toDate(),
-        // end_time: slotEndTime.toDate(),
-        slot_duration,
-        recurrence_rule: newRecurrence._id,
+        startTime: slotStart.format("HH:mm"),
+        endTime: slotEndTime.format("HH:mm"),
+        slotDuration,
+        recurrenceRule: newRecurrence._id,
       });
 
-      slotStart.add(slot_duration, "minutes");
+      slotStart.add(slotDuration, "minutes");
     }
 
     currentDate.add(1, "day");
   }
-
   // console.log(slots);
   await Slot.insertMany(slots);
 
@@ -120,14 +141,14 @@ exports.createRecurringSlots = asyncErrorHandler(async (req, res) => {
     success: true,
     message: "Slots created successfully",
     data: {
-      recurrence_id: newRecurrence._id,
+      recurrenceId: newRecurrence._id,
     },
   });
 });
 
 exports.bookSlot = asyncErrorHandler(async (req, res) => {
   const slotId = req.params.slotId;
-  const { first_name, last_name, reason, email, mobile_number } = req.body;
+  const { firstName, lastName, reason, email, mobileNumber } = req.body;
 
   const availableSlot = await Slot.findOneAndUpdate(
     { _id: slotId, status: "available" },
@@ -148,10 +169,10 @@ exports.bookSlot = asyncErrorHandler(async (req, res) => {
 
   if (!patient) {
     patient = await Patient.create({
-      first_name,
-      last_name,
+      firstName,
+      lastName,
       email,
-      mobile_number,
+      mobileNumber,
     });
   }
 
@@ -160,7 +181,7 @@ exports.bookSlot = asyncErrorHandler(async (req, res) => {
     reason,
     patient: patient._id,
     slot: availableSlot._id,
-    booking_time: bookingTime,
+    bookingTime: bookingTime,
   });
 
   return responseHandler({
@@ -168,16 +189,16 @@ exports.bookSlot = asyncErrorHandler(async (req, res) => {
     success: true,
     message: "Slot booked successfully",
     data: {
-      booking_id: newBooking._id,
-      booking_time: bookingTime,
+      bookingId: newBooking._id,
+      bookingTime: bookingTime,
       patient: {
-        name: `${patient.first_name} ${patient.last_name}`,
+        name: `${patient.firstName} ${patient.lastName}`,
         email: patient.email,
-        mobile_number: patient.mobile_number,
+        mobileNumber: patient.mobileNumber,
       },
       slot: {
-        start_time: availableSlot.start_time,
-        end_time: availableSlot.end_time,
+        startTime: availableSlot.startTime,
+        endTime: availableSlot.endTime,
         date: availableSlot.date,
         status: availableSlot.status,
       },

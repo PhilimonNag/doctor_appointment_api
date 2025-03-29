@@ -63,9 +63,9 @@ Ensure you have the following installed:
 
 ```json
 {
-  "username": "drjohn",
-  "first_name": "John",
-  "last_name": "Doe",
+  "userName": "drjohn",
+  "firstName": "John",
+  "lastName": "Doe",
   "email": "dr.john@example.com"
 }
 ```
@@ -77,10 +77,10 @@ Ensure you have the following installed:
   "success": true,
   "message": "Doctor created successfully",
   "data": {
-    "id": "67e66cbf2915e54656b2fc7a",
-    "username": "drjohn",
-    "first_name": "John",
-    "last_name": "Doe",
+    "_id": "67e66cbf2915e54656b2fc7a",
+    "userName": "drjohn",
+    "firstName": "John",
+    "lastName": "Doe",
     "email": "dr.john@example.com"
   }
 }
@@ -91,16 +91,27 @@ Ensure you have the following installed:
 **Endpoint:** `GET /api/v1/doctors/:doctorId/slots`
 
 **Request Body:**
+**_Daily Recurrence_**
 
 ```json
 {
-  "start_time": "2025-04-01T10:00:00Z",
-  "end_time": "2025-04-01T12:00:00Z",
-  "slot_duration": 30,
-  "recurrence_type": "weekly",
-  "repeat_until": "2025-05-01T00:00:00Z",
-  "weekdays": ["MO", "WE", "FR"],
-  "one_time_date": "2025-04-15T10:00:00Z"
+  "startTime": "2025-04-01T08:00:00Z",
+  "endTime": "2025-04-01T12:00:00Z",
+  "slotDuration": 30,
+  "recurrenceType": "daily",
+  "repeatUntil": "2025-04-07T23:59:59Z"
+}
+```
+
+**_One-Time Recurrence_**
+
+```json
+{
+  "startTime": "2025-04-01T08:00:00Z",
+  "endTime": "2025-04-01T12:00:00Z",
+  "slotDuration": 30,
+  "recurrenceType": "oneTime",
+  "oneTimeDate": "2025-04-05T00:00:00Z"
 }
 ```
 
@@ -111,14 +122,14 @@ Ensure you have the following installed:
   "success": true,
   "message": "Slots created successfully",
   "data": {
-    "recurrence_id": "67e66cbf2915e54656b2fc7a"
+    "recurrenceId": "67e66cbf2915e54656b2fc7a"
   }
 }
 ```
 
 ### **3. Get Available Slots**
 
-**Endpoint:** `GET /api/v1/doctors/:doctorId/available_slots`
+**Endpoint:** `GET /api/v1/doctors/:doctorId/availableSlots`
 
 **Response:**
 
@@ -130,8 +141,8 @@ Ensure you have the following installed:
     {
       "_id": "67e63e48488b85e9c660bc23",
       "date": "2025-12-29T18:30:00.000Z",
-      "start_time": "10:30",
-      "end_time": "11:00"
+      "startTime": "10:30",
+      "endTime": "11:00"
     }
   ]
 }
@@ -152,18 +163,18 @@ Ensure you have the following installed:
       "_id": "67e64c817a6d7d5a5634d244",
       "slot": {
         "_id": "67e63e48488b85e9c660bc1f",
-        "start_time": "10:00",
-        "end_time": "10:30"
+        "startTime": "10:00",
+        "endTime": "10:30"
       },
       "patient": {
         "_id": "67e64c817a6d7d5a5634d242",
-        "first_name": "Babu",
-        "last_name": "Sona",
-        "email": "babu@gmail.com",
-        "mobile_number": "7751996767"
+        "firstName": "PatientFirstName",
+        "lastName": "PatientLastName",
+        "email": "Patient@gmail.com",
+        "mobileNumber": "7751996767"
       },
       "reason": "suffering from fever",
-      "booking_time": "2025-03-28T07:15:13.888Z",
+      "bookingTime": "2025-03-28T07:15:13.888Z",
       "createdAt": "2025-03-28T07:15:13.889Z",
       "updatedAt": "2025-03-28T07:15:13.889Z",
       "__v": 0
@@ -180,10 +191,10 @@ Ensure you have the following installed:
 
 ```json
 {
-  "first_name": "patientfirstname",
-  "last_name": "patientlastname",
+  "firstName": "patientfirstname",
+  "lastName": "patientlastname",
   "email": "patient@gmail.com",
-  "mobile_number": "7751996767",
+  "mobileNumber": "7751996767",
   "reason": "suffering from fever"
 }
 ```
@@ -195,16 +206,16 @@ Ensure you have the following installed:
   "success": true,
   "message": "Slot booked successfully",
   "data": {
-    "booking_id": "67e67307e132576a5039c518",
-    "booking_time": "2025-03-28T09:59:35.276Z",
+    "bookingId": "67e67307e132576a5039c518",
+    "bookingTime": "2025-03-28T09:59:35.276Z",
     "patient": {
-      "name": "Babu Sona",
-      "email": "babu@gmail.com",
-      "mobile_number": "7751996767"
+      "name": "Patient Name",
+      "email": "Patient@gmail.com",
+      "mobileNumber": "7751996767"
     },
     "slot": {
-      "start_time": "11:00",
-      "end_time": "11:30",
+      "startTime": "11:00",
+      "endTime": "11:30",
       "date": "2025-12-29T18:30:00.000Z",
       "status": "booked"
     }
@@ -225,7 +236,6 @@ Ensure you have the following installed:
 
 - 🔗 **[API Documentation](https://doctor-api.philimonnag.com/api-docs)**
 - 🔗 **[Base API URL](https://doctor-api.philimonnag.com/)**
-- 🔗 **[Versioned API](https://doctor-api.philimonnag.com/api/v1)**
 
 ## License
 

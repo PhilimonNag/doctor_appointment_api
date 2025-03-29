@@ -7,81 +7,81 @@ const isValidISODate = (value) =>
 
 module.exports = {
   createSlotValidator: [
-    body("start_time")
+    body("startTime")
       .exists()
-      .withMessage("start_time is required")
+      .withMessage("startTime is required")
       .custom(isValidISODate)
-      .withMessage("start_time must be a valid ISO 8601 date"),
+      .withMessage("startTime must be a valid ISO 8601 date"),
 
-    body("end_time")
+    body("endTime")
       .exists()
-      .withMessage("end_time is required")
+      .withMessage("endTime is required")
       .custom(isValidISODate)
-      .withMessage("end_time must be a valid ISO 8601 date")
+      .withMessage("endTime must be a valid ISO 8601 date")
       .custom((value, { req }) => {
-        if (moment.utc(value).isBefore(moment.utc(req.body.start_time))) {
-          throw new Error("end_time must be after start_time");
+        if (moment.utc(value).isBefore(moment.utc(req.body.startTime))) {
+          throw new Error("endTime must be after startTime");
         }
         return true;
       }),
 
-    // Validate slot_duration (15 or 30 minutes)
-    body("slot_duration")
+    // Validate slotDuration (15 or 30 minutes)
+    body("slotDuration")
       .exists()
-      .withMessage("slot_duration is required")
+      .withMessage("slotDuration is required")
       .isInt({ min: 15, max: 30 })
-      .withMessage("slot_duration must be 15 or 30 minutes"),
+      .withMessage("slotDuration must be 15 or 30 minutes"),
 
-    // Validate recurrence_type
-    body("recurrence_type")
+    // Validate recurrenceType
+    body("recurrenceType")
       .exists()
-      .withMessage("recurrence_type is required")
-      .isIn(["daily", "weekly", "one-time"])
-      .withMessage("Invalid recurrence_type"),
+      .withMessage("recurrenceType is required")
+      .isIn(["daily", "weekly", "oneTime"])
+      .withMessage("Invalid recurrenceType"),
 
-    // Validate repeat_until for daily and weekly recurrence
-    body("repeat_until")
-      .if(body("recurrence_type").isIn(["daily", "weekly"]))
+    // Validate repeatUntil for daily and weekly recurrence
+    body("repeatUntil")
+      .if(body("recurrenceType").isIn(["daily", "weekly"]))
       .exists()
-      .withMessage("repeat_until is required for daily and weekly recurrence")
+      .withMessage("repeatUntil is required for daily and weekly recurrence")
       .custom(isValidISODate)
-      .withMessage("repeat_until must be a valid ISO 8601 date")
+      .withMessage("repeatUntil must be a valid ISO 8601 date")
       .custom((value, { req }) => {
-        if (moment.utc(value).isBefore(moment.utc(req.body.start_time))) {
-          throw new Error("repeat_until must be after start_time");
+        if (moment.utc(value).isBefore(moment.utc(req.body.startTime))) {
+          throw new Error("repeatUntil must be after startTime");
         }
         return true;
       }),
 
-    // Validate weekdays for weekly recurrence
-    body("weekdays")
-      .if(body("recurrence_type").equals("weekly"))
+    // Validate weekDays for weekly recurrence
+    body("weekDays")
+      .if(body("recurrenceType").equals("weekly"))
       .exists()
-      .withMessage("weekdays is required for weekly recurrence")
+      .withMessage("weekDays is required for weekly recurrence")
       .isArray()
-      .withMessage("weekdays must be an array")
+      .withMessage("weekDays must be an array")
       .custom((value) => {
         const validDays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
         if (!value.every((day) => validDays.includes(day.toUpperCase()))) {
           throw new Error(
-            "weekdays must contain valid values (MO, TU, WE, TH, FR, SA, SU)"
+            "weekDays must contain valid values (MO, TU, WE, TH, FR, SA, SU)"
           );
         }
         return true;
       }),
 
-    // Validate one_time_date for one-time recurrence
-    body("one_time_date")
-      .if(body("recurrence_type").equals("one-time"))
+    // Validate oneTimeDate for oneTime recurrence
+    body("oneTimeDate")
+      .if(body("recurrenceType").equals("oneTime"))
       .exists()
-      .withMessage("one_time_date is required for one-time recurrence")
+      .withMessage("oneTimeDate is required for oneTime recurrence")
       .custom(isValidISODate)
-      .withMessage("one_time_date must be a valid ISO 8601 date"),
+      .withMessage("oneTimeDate must be a valid ISO 8601 date"),
     // Sanitize input
-    body("start_time").trim(),
-    body("end_time").trim(),
-    body("repeat_until").optional().trim(),
-    body("one_time_date").optional().trim(),
+    body("startTime").trim(),
+    body("endTime").trim(),
+    body("repeatUntil").optional().trim(),
+    body("oneTimeDate").optional().trim(),
   ],
   bookSlotValidator: [
     param("slotId")
@@ -97,31 +97,31 @@ module.exports = {
       .withMessage("Reason must be between 5 and 200 characters")
       .trim(),
 
-    body("first_name")
+    body("firstName")
       .exists()
-      .withMessage("First name is required")
+      .withMessage("firstName is required")
       .isLength({ min: 2, max: 50 })
-      .withMessage("First name must be between 2 and 50 characters")
+      .withMessage("firstName must be between 2 and 50 characters")
       .trim(),
 
-    body("last_name")
+    body("lastName")
       .exists()
-      .withMessage("Last name is required")
+      .withMessage("lastName is required")
       .isLength({ min: 2, max: 50 })
-      .withMessage("Last name must be between 2 and 50 characters")
+      .withMessage("lastName must be between 2 and 50 characters")
       .trim(),
 
     body("email")
       .exists()
-      .withMessage("Email is required")
+      .withMessage("email is required")
       .isEmail()
       .withMessage("Invalid email format")
       .normalizeEmail(),
 
-    body("mobile_number")
+    body("mobileNumber")
       .exists()
-      .withMessage("Mobile number is required")
+      .withMessage("mobileNumber is required")
       .isMobilePhone()
-      .withMessage("Invalid mobile number format"),
+      .withMessage("Invalid mobileNumber format"),
   ],
 };
